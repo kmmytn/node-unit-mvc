@@ -17,3 +17,13 @@ exports.createPost = (obj, next) => {
         next(err, post)
     }) 
 }
+
+exports.updatePost = (id, update, callback) => {
+    post.findByIdAndUpdate(id, update, { new: true }, (err, result) => {
+        if (err) {
+            return callback(err);
+        }
+        return callback(null, result);
+    });
+};
+
