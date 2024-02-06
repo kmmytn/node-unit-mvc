@@ -27,3 +27,12 @@ exports.updatePost = (id, update, callback) => {
     });
 };
 
+exports.findPost = function(id, callback) {
+    Post.findById(id, function(err, post) {
+        if (err) {
+            return callback(err);
+        }
+        return callback(null, post);
+    });
+};
+

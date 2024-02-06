@@ -138,29 +138,61 @@ describe('Post controller', () => {
    });
     
 
-    describe('findPost', () => {
+   describe('findPost', () => {
+    let findPostStub;
+    let postId;
+    let expectedPost;
 
-        it('should return vehicle obj', sinon.test(function () {
-            sinon.stub(Vehicle, 'findById').yields(null, expectedResult);
-            Controller.get(req, res);
-            sinon.assert.calledWith(Vehicle.findById, req.params.id);
-            sinon.assert.calledWith(res.json, sinon.match({ model: req.body.model }));
-            sinon.assert.calledWith(res.json, sinon.match({ manufacturer: req.body.manufacturer }));
-        }));
-        it('should return 404 for non-existing vehicle id', sinon.test(function () {
-            sinon.stub(Vehicle, 'findById').yields(null, null);
-            Controller.get(req, res);
-            sinon.assert.calledWith(Vehicle.findById, req.params.id);
-            sinon.assert.calledWith(res.status, 404);
-            sinon.assert.calledOnce(res.status(404).end);
-        }));
-        it('should return status 500 on server error', sinon.test(function () {
-            sinon.stub(Vehicle, 'findById').yields(error);
-            Controller.get(req, res);
-            sinon.assert.calledWith(Vehicle.findById, req.params.id);
-            sinon.assert.calledWith(res.status, 500);
-            sinon.assert.calledOnce(res.status(500).end);
-        }));
-  
-    })
+    beforeEach(() => {
+        // Reset the request and response objects before each test
+        req = {
+            params: {}
+        };
+        res = {
+            json: sinon.spy(),
+            status: sinon.stub().returns({ end: sinon.spy() })
+        };
+    });
+
+    afterEach(() => {
+        // Restore the stub after each test
+        findPostStub.restore();
+    });
+
+    it('should return the found post object', async () => {
+        // Arrange
+        postId = '1234';
+        req.params.id = postId;
+        expectedPost = {
+            _id: postId,
+            title: 'Found Post',
+            content: 'Content of the found post',
+            author: 'testuser',
+            date: Date.now()
+        };
+        findPostStub = sinon.stub(PostModel, 'findPost').resolves(expectedPost);
+
+        // Act
+        await PostController.findPost(req, res);
+
+        // Assert
+        sinon.assert.calledWith(findPostStub, postId);
+        sinon.assert.calledWith(res.json, sinon.match(expectedPost));
+    });
+
+    it('should return status  500 on server error', async () => {
+        // Arrange
+        postId = '1234';
+        req.params.id = postId;
+        findPostStub = sinon.stub(PostModel, 'findPost').rejects(error);
+
+        // Act
+        await PostController.findPost(req, res);
+
+        // Assert
+        sinon.assert.calledWith(findPostStub, postId);
+        sinon.assert.calledWith(res.status,  500);
+        sinon.assert.calledOnce(res.status(500).end);
+    });
+});
 });

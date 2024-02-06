@@ -25,8 +25,21 @@ PostController.update = (req, res) => {
     });
 };
 
-PostController.findPost = (req, res) => {
+PostController.findPost = async (req, res) => {
+    const postId = req.params.id;
 
+    try {
+        const foundPost = await PostModel.findPost(postId);
+        
+        if (!foundPost) {
+            return res.status(404).end();
+        }
+
+        return res.json(foundPost);
+    } catch (error) {
+        console.error(error);
+        return res.status(500).end();
+    }
 };
 
 PostController.getAllPosts = (req, res) => {
