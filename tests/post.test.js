@@ -77,6 +77,14 @@ describe('Post controller', () => {
 
     describe('update', () => {
 
+        it('should return updated post', () => {
+            this.stub(Vehicle, 'findByIdAndUpdate').yields(null, expectedResult);
+            Controller.update(req, res);
+            sinon.assert.calledWith(Vehicle.findByIdAndUpdate, req.params.id, req.body, { new: true });
+            sinon.assert.calledWith(res.json, sinon.match({ model: req.body.model }));
+            sinon.assert.calledWith(res.json, sinon.match({ manufacturer: req.body.manufacturer }));
+        });
+
     });
 
     describe('findPost', () => {
